@@ -40,9 +40,10 @@ async def read_one(db:db_dependency, todos_id: int = Path(gt=0)):
         return todo_model
     raise HTTPException(status_code=404, detail="user Not Found")
 
+#Create a new Todo
 @app.post("/todo", status_code=status.HTTP_201_CREATED)
 async def create_todo(db:db_dependency, todo_request: TodoRequest):
-    todo_model = Todos(**todo_request.dict())
+    todo_model = Todos(**todo_request.model_dump())
 
     db.add(todo_model)
     db.commit()
