@@ -1,5 +1,18 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+
+class User(Base):
+    __tablename__ = 'users' # This is the name of the table in the database
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String,unique=True)
+    username = Column(String, unique=True)
+    first_name = Column(String)
+    last_name = Column(String)
+    hashed_passwords = Column(String)
+    is_active = Column(Boolean, default=True)
+    role = Column(String)
+
 
 class Todos(Base):
     __tablename__ = 'todos' # This is the name of the table in the database
@@ -9,3 +22,4 @@ class Todos(Base):
     description = Column(String(100), nullable=False)
     prioty = Column(Integer, nullable=False)
     completed = Column(Boolean, default=False)
+    owner_id = Column(Integer, ForeignKey("users.id"))
