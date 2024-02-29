@@ -6,7 +6,7 @@ from starlette import status
 from models import Todos
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
-
+from .auth import get_current_user
 
 todo_router = APIRouter()
 
@@ -20,6 +20,8 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
+user_dependency = Annotated[models.User, Depends(get_current_user)]
 
 class TodoRequest(BaseModel):
     title: str = Field(min_length=3)
@@ -43,8 +45,12 @@ async def read_one(db:db_dependency, todos_id: int = Path(gt=0)):
 
 #Create a new Todo
 @todo_router.post("/todo", status_code=status.HTTP_201_CREATED)
-async def create_todo(db:db_dependency, todo_request: TodoRequest):
-    todo_model = Todos(**todo_request.model_dump())
+async def create_todo(user: user_dependency, 
+                      db:db_dependency, todo_request: TodoRequest):
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed")
+
+    todo_model = Todos(**todo_request.model_dump(), owner_id=user.get('id'))
 
     db.add(todo_model)
     db.commit()
