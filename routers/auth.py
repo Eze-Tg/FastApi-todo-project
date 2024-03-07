@@ -49,7 +49,7 @@ def authenticate_user(username: str, password: str, db):
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
-    if not bcrypt_context.verify(password, user.hashed_passwords):
+    if not bcrypt_context.verify(password, user.hashed_password):
         return False
     return user
 
@@ -79,7 +79,7 @@ async def create_user(db:db_dependency,create_user_request: CreateUserRequest):
         email=create_user_request.email,
         first_name=create_user_request.first_name,
         last_name=create_user_request.last_name,
-        hashed_passwords=bcrypt_context.hash(create_user_request.password),
+        hashed_password=bcrypt_context.hash(create_user_request.password),
         role=create_user_request.role,
         is_active=True,
     )
